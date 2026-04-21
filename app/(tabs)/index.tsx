@@ -46,7 +46,7 @@ export default function IndexScreen() {
 
       <PrimaryButton
         label="Add Habit"
-        onPress={() => router.push({ pathname: '/habit/add' })}
+        onPress={() => router.push({ pathname: '/add' })}
       />
 
       <TextInput
