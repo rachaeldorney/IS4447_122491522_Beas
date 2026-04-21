@@ -11,6 +11,8 @@ export type Habit = {
   category_id: number;
   name: string;
   description: string | null;
+  duration: number | null;
+  notes: string | null;
   created_at: string;
 };
 
@@ -50,7 +52,9 @@ export default function RootLayout() {
 
   return (
     <AppContext.Provider value={{ habits, setHabits, categories, setCategories }}>
-      <Stack />
+      <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
     </AppContext.Provider>
   );
 }

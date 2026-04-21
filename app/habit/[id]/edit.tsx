@@ -6,7 +6,8 @@ import { habits as habitsTable } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppContext, Habit } from '../../_layout';
 
@@ -14,27 +15,52 @@ export default function EditHabit() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const context = useContext(AppContext);
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [duration, setDuration] = useState('');
+  const [notes, setNotes] = useState('');
+
+  // DropDownPicker state
+  const [open, setOpen] = useState(false);
+  const [categoryValue, setCategoryValue] = useState<number | null>(null);
+  const [categoryItems, setCategoryItems] = useState<{ label: string; value: number }[]>([]);
 
   const habit = context?.habits.find((h: Habit) => h.id === Number(id));
 
-  // Pre-fill the form with existing habit data when the screen loads
+  // Pre-fill all fields with the existing habit data when screen loads
   useEffect(() => {
     if (!habit) return;
     setName(habit.name);
     setDescription(habit.description ?? '');
+    setDuration(habit.duration ? String(habit.duration) : '');
+    setNotes(habit.notes ?? '');
+    setCategoryValue(habit.category_id);
   }, [habit]);
 
   if (!context || !habit) return null;
 
-  const { setHabits } = context;
+  const { setHabits, categories } = context;
+
+  // Build dropdown items from categories in context
+  const dropdownItems = categories.map((cat) => ({
+    label: cat.name,
+    value: cat.id,
+  }));
 
   const saveChanges = async () => {
-    // Update the habit in db then refresh context
+    if (!categoryValue) return;
+
+    // Update the habit in the database then refresh context
     await db
       .update(habitsTable)
-      .set({ name, description })
+      .set({
+        name,
+        description,
+        duration: duration ? Number(duration) : null,
+        notes,
+        category_id: categoryValue,
+      })
       .where(eq(habitsTable.id, Number(id)));
 
     const rows = await db.select().from(habitsTable);
@@ -44,16 +70,34 @@ export default function EditHabit() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScreenHeader title="Edit Habit" subtitle={`Update ${habit.name}`} />
-      <View style={styles.form}>
-        <FormField label="Name" value={name} onChangeText={setName} />
-        <FormField label="Description" value={description} onChangeText={setDescription} />
-      </View>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <ScreenHeader title="Edit Habit" subtitle={`Update ${habit.name}`} />
 
-      <PrimaryButton label="Save Changes" onPress={saveChanges} />
-      <View style={styles.buttonSpacing}>
-        <PrimaryButton label="Cancel" variant="secondary" onPress={() => router.back()} />
-      </View>
+        <View style={styles.form}>
+          <FormField label="Name" value={name} onChangeText={setName} />
+          <FormField label="Duration (mins)" value={duration} onChangeText={setDuration} />
+          <FormField label="Notes (optional)" value={notes} onChangeText={setNotes} />
+
+          {/* Category dropdown — pre-selected with the habit's current category */}
+          <DropDownPicker
+            open={open}
+            value={categoryValue}
+            items={dropdownItems}
+            setOpen={setOpen}
+            setValue={setCategoryValue}
+            setItems={setCategoryItems}
+            placeholder="Select a category"
+            style={styles.dropdown}
+            dropDownContainerStyle={styles.dropdownContainer}
+            listMode="SCROLLVIEW"
+          />
+        </View>
+
+        <PrimaryButton label="Save Changes" onPress={saveChanges} />
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -64,10 +108,20 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-  form: {
-    marginBottom: 6,
+  content: {
+    paddingBottom: 24,
   },
-  buttonSpacing: {
-    marginTop: 10,
+  form: {
+    marginBottom: 16,
+  },
+  dropdown: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    marginTop: 4,
+  },
+  dropdownContainer: {
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
   },
 });

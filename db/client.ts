@@ -24,6 +24,8 @@ sqlite.execSync(`
     category_id INTEGER NOT NULL,
     name TEXT NOT NULL,
     description TEXT,
+    duration INTEGER,
+    notes TEXT,
     created_at TEXT NOT NULL
   );
   CREATE TABLE IF NOT EXISTS habit_logs (

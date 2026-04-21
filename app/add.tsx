@@ -6,29 +6,46 @@ import { habits as habitsTable } from '@/db/schema';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppContext } from './_layout';
 
 export default function AddHabit() {
   const router = useRouter();
   const context = useContext(AppContext);
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [categoryId, setCategoryId] = useState('');
+  const [notes, setNotes] = useState('');
+  const [duration, setDuration] = useState('');
+
+  // DropDownPicker requires its own open/value/items state
+  const [open, setOpen] = useState(false);
+  const [categoryValue, setCategoryValue] = useState<number | null>(null);
+  const [categoryItems, setCategoryItems] = useState<{ label: string; value: number }[]>([]);
 
   if (!context) return null;
-  const { setHabits } = context;
+  const { setHabits, categories } = context;
+
+  // Build dropdown items from categories in context
+  const dropdownItems = categories.map((cat) => ({
+    label: cat.name,
+    value: cat.id,
+  }));
 
   const saveHabit = async () => {
-    // Insert the new habit then refresh the list in context
+    if (!categoryValue) return;
+
+    // Insert new habit into the database with current date as created_at
     await db.insert(habitsTable).values({
       name,
       description,
-      category_id: Number(categoryId),
+      category_id: categoryValue,
       user_id: 1, // hardcoded until auth is implemented
       created_at: new Date().toISOString(),
     });
 
+    // Refresh habits in context so the list updates immediately
     const rows = await db.select().from(habitsTable);
     setHabits(rows);
     router.back();
@@ -40,17 +57,29 @@ export default function AddHabit() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader title="Add Habit" subtitle="Create a new habit to track." />
+        <ScreenHeader title="Add Habit" subtitle="Track something new." />
+
         <View style={styles.form}>
           <FormField label="Name" value={name} onChangeText={setName} />
-          <FormField label="Description" value={description} onChangeText={setDescription} />
-          <FormField label="Category ID" value={categoryId} onChangeText={setCategoryId} />
+          <FormField label="Duration (mins)" value={duration} onChangeText={setDuration} />
+          <FormField label="Notes (optional)" value={notes} onChangeText={setNotes} />
+
+          {/* Category dropdown — built from categories stored in the database */}
+          <DropDownPicker
+            open={open}
+            value={categoryValue}
+            items={dropdownItems}
+            setOpen={setOpen}
+            setValue={setCategoryValue}
+            setItems={setCategoryItems}
+            placeholder="Select a category"
+            style={styles.dropdown}
+            dropDownContainerStyle={styles.dropdownContainer}
+            listMode="SCROLLVIEW"
+          />
         </View>
 
         <PrimaryButton label="Save Habit" onPress={saveHabit} />
-        <View style={styles.backButton}>
-          <PrimaryButton label="Cancel" variant="secondary" onPress={() => router.back()} />
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -66,9 +95,16 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   form: {
-    marginBottom: 6,
+    marginBottom: 16,
   },
-  backButton: {
-    marginTop: 10,
+  dropdown: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    marginTop: 4,
+  },
+  dropdownContainer: {
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
   },
 });

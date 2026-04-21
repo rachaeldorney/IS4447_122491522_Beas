@@ -12,36 +12,29 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
         tabBarButton: HapticTab,
+        headerShown: false,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Habits',
+          tabBarIcon: ({ color }) => <Feather name="home" size={24} color={color} />,
+          tabBarLabel: 'Home',
+        }}
+      />
+      <Tabs.Screen
+        name="habits"
+        options={{
           tabBarIcon: ({ color }) => <Feather name="check-square" size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="categories"
-        options={{
-          title: 'Categories',
-          tabBarIcon: ({ color }) => <Feather name="folder" size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="targets"
-        options={{
-          title: 'Targets',
-          tabBarIcon: ({ color }) => <Feather name="target" size={24} color={color} />,
+          tabBarLabel: 'Habits',
         }}
       />
       <Tabs.Screen
         name="insights"
         options={{
-          title: 'Insights',
           tabBarIcon: ({ color }) => <Feather name="bar-chart-2" size={24} color={color} />,
+          tabBarLabel: 'Insights',
         }}
       />
     </Tabs>

@@ -43,7 +43,7 @@ export default function HabitCard({ habit, category }: Props) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
+    borderColor: '#FCE7F3',
     borderRadius: 14,
     borderWidth: 1,
     marginBottom: 12,

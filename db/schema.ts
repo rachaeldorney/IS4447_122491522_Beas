@@ -21,6 +21,8 @@ export const habits = sqliteTable('habits', {
   category_id: integer('category_id').notNull(),
   name: text('name').notNull(),
   description: text('description'),
+  duration: integer('duration'), // duration in minutes, optional
+  notes: text('notes'), // optional free text notes
   created_at: text('created_at').notNull(),
 });
 
