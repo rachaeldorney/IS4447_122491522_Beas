@@ -104,7 +104,7 @@ export default function EditHabit() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FCF9FA',
     flex: 1,
     padding: 20,
   },
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   dropdown: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCF9FA',
     borderColor: '#CBD5E1',
     borderRadius: 10,
     marginTop: 4,

@@ -3,14 +3,7 @@ import PrimaryButton from '@/components/ui/primary-button';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppContext, Habit } from '../_layout';
 
@@ -44,16 +37,24 @@ export default function IndexScreen() {
   });
 
   // True when either the search box has text or a category filter is active
+  // https://react.dev/learn/conditional-rendering
   const isFiltered = normalizedQuery.length > 0 || selectedCategory !== 'All';
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <TextInput
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        placeholder="Search habits..."
-        style={styles.searchInput}
-      />
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+       <View style={styles.header}>
+        <Text style={styles.pageTitle}>My Habits</Text>
+      </View>
+      <View style={styles.searchWrapper}>
+        <Feather name="search" size={16} color="#D4A0B0" />
+        <TextInput
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Search habits..."
+          placeholderTextColor="#D4A0B0"
+          style={styles.searchInput}
+        />
+      </View>
 
       {/* Category filter pills — tapping one sets selectedCategory */}
       <View style={styles.filterRow}>
@@ -82,11 +83,12 @@ export default function IndexScreen() {
           );
         })}
       </View>
-
       <ScrollView
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       >
+         {/*  Two different empty states — one for when filters return no results, one for when no habits exist at all */}
+         {/* https://react.dev/learn/conditional-rendering */}
         {filteredHabits.length === 0 ? (
           <View style={styles.emptyState}>
             {isFiltered ? (
@@ -117,6 +119,9 @@ export default function IndexScreen() {
             <HabitCard
               key={habit.id}
               habit={habit}
+              // Category lookup using Array.find() with optional chaining
+              // Matches each habit to its category by comparing category_id
+              // React and React Native 5th Ed 2024 p.364
               category={categories.find((c) => c.id === habit.category_id)}
             />
           ))
@@ -138,33 +143,56 @@ export default function IndexScreen() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#FFF0F7',
+    backgroundColor: '#FCF9FA',
     flex: 1,
-    paddingHorizontal: 18,
-    paddingTop: 10,
   },
+  header: {
+    backgroundColor: '#F9A8D4',
+    paddingHorizontal: 18,
+    paddingTop: 56,
+    paddingBottom: 16,
+  },
+  pageTitle: {
+    color: '#831843',
+    fontSize: 18,
+    fontWeight: '500',
+    alignSelf: 'center',
+},
   listContent: {
     paddingBottom: 100,
     paddingTop: 14,
+    paddingHorizontal: 18,
   },
-  searchInput: {
+  searchWrapper: {
+    alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderColor: '#94A3B8',
-    borderRadius: 10,
+    borderColor: '#FCE7F3',
+    borderRadius: 8,
     borderWidth: 1,
-    marginTop: 14,
+    flexDirection: 'row',
+    gap: 8,
+    marginHorizontal: 18,
+    marginTop: 25,
     paddingHorizontal: 12,
     paddingVertical: 10,
+},
+  searchInput: {
+    color: '#9D174D',
+    flex: 1,
+    fontSize: 15, 
   },
   filterRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginTop: 10,
+    marginTop: 16,
+    marginBottom: 16,
+    paddingHorizontal: 18,
+
   },
   filterButton: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#94A3B8',
+    borderColor: '#FCE7F3',
     borderRadius: 999,
     borderWidth: 1,
     paddingHorizontal: 12,
@@ -175,7 +203,7 @@ const styles = StyleSheet.create({
     borderColor: '#831843',
   },
   filterButtonText: {
-    color: '#0F172A',
+    color: '#831843',
     fontSize: 14,
     fontWeight: '500',
   },
@@ -188,12 +216,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   emptyTitle: {
-    color: '#111827',
+    color: '#831843',
     fontSize: 16,
     fontWeight: '600',
   },
   emptySubtext: {
-    color: '#6B7280',
+    color: '#9D174D',
     fontSize: 14,
     marginBottom: 12,
     textAlign: 'center',

@@ -1,11 +1,11 @@
 import FormField from '@/components/ui/form-field';
 import PrimaryButton from '@/components/ui/primary-button';
-import ScreenHeader from '@/components/ui/screen-header';
 import { db } from '@/db/client';
 import { habits as habitsTable } from '@/db/schema';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppContext } from './_layout';
@@ -52,59 +52,85 @@ export default function AddHabit() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
+  <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+    <View style={styles.header}>
+      <Pressable
+        accessibilityLabel="Go back"
+        accessibilityRole="button"
+        onPress={() => router.back()}
+        style={styles.backButton}
       >
-        <ScreenHeader title="Add Habit" subtitle="Track something new." />
+        <Feather name="arrow-left" size={24} color="#831843" />
+      </Pressable>
+      <Text style={styles.pageTitle}>Add Habit</Text>
+    </View>
 
-        <View style={styles.form}>
-          <FormField label="Name" value={name} onChangeText={setName} />
-          <FormField label="Duration (mins)" value={duration} onChangeText={setDuration} />
-          <FormField label="Notes (optional)" value={notes} onChangeText={setNotes} />
-
-          {/* Category dropdown — built from categories stored in the database */}
-          <DropDownPicker
-            open={open}
-            value={categoryValue}
-            items={dropdownItems}
-            setOpen={setOpen}
-            setValue={setCategoryValue}
-            setItems={setCategoryItems}
-            placeholder="Select a category"
-            style={styles.dropdown}
-            dropDownContainerStyle={styles.dropdownContainer}
-            listMode="SCROLLVIEW"
-          />
-        </View>
-
-        <PrimaryButton label="Save Habit" onPress={saveHabit} />
-      </ScrollView>
-    </SafeAreaView>
-  );
+    <View style={styles.content}>
+      <View style={styles.form}>
+        <FormField label="Name" value={name} onChangeText={setName} />
+        <FormField label="Duration" value={duration} onChangeText={setDuration} />
+        <FormField label="Notes (optional)" value={notes} onChangeText={setNotes} />
+        <DropDownPicker
+          open={open}
+          value={categoryValue}
+          items={dropdownItems}
+          setOpen={setOpen}
+          setValue={setCategoryValue}
+          setItems={setCategoryItems}
+          placeholder="Select a category"
+          style={styles.dropdown}
+          dropDownContainerStyle={styles.dropdownContainer}
+          listMode="SCROLLVIEW"
+        />
+      </View>
+      <PrimaryButton label="Save Habit" onPress={saveHabit} />
+    </View>
+  </SafeAreaView>
+);
 }
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FCF9FA',
     flex: 1,
-    padding: 20,
+  },
+  header: {
+    backgroundColor: '#F9A8D4',
+    paddingHorizontal: 18,
+    paddingTop: 56,
+    paddingBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  backButton: {
+    padding: 4,
+},
+  pageTitle: {
+    color: '#831843',
+    fontSize: 18,
+    fontWeight: '500',
+    flex: 1,
+    textAlign: 'center',
+    marginRight: 34,
   },
   content: {
+    paddingHorizontal: 18,
     paddingBottom: 24,
+    paddingTop: 32,
+    justifyContent: 'space-between',
   },
   form: {
     marginBottom: 16,
   },
   dropdown: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#CBD5E1',
-    borderRadius: 10,
+    borderColor: '#FCE7F3',
+    borderRadius: 8,
     marginTop: 4,
   },
   dropdownContainer: {
-    borderColor: '#CBD5E1',
-    borderRadius: 10,
+    borderColor: '#FCE7F3',
+    borderRadius: 8,
   },
 });

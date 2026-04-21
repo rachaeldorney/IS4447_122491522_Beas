@@ -45,4 +45,12 @@ sqlite.execSync(`
   );
 `);
 
+try {
+  sqlite.execSync(`ALTER TABLE habits ADD COLUMN duration INTEGER;`);
+} catch (e) {}
+
+try {
+  sqlite.execSync(`ALTER TABLE habits ADD COLUMN notes TEXT;`);
+} catch (e) {}
+
 export const db = drizzle(sqlite, { schema });

@@ -1,5 +1,4 @@
 import { Category, Habit } from '@/app/_layout';
-import InfoTag from '@/components/ui/info-tag';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -8,7 +7,6 @@ type Props = {
   category: Category | undefined;
 };
 
-// Tappable card shown in the habits list — navigates to the habit detail screen on press
 export default function HabitCard({ habit, category }: Props) {
   const router = useRouter();
   const openDetails = () =>
@@ -21,21 +19,14 @@ export default function HabitCard({ habit, category }: Props) {
       onPress={openDetails}
       style={({ pressed }) => [
         styles.card,
-        pressed ? styles.cardPressed : null,
+        pressed && styles.cardPressed,
       ]}
     >
       <View style={styles.topRow}>
-        {/* Coloured dot using the category colour */}
         <View style={[styles.dot, { backgroundColor: category?.colour ?? '#CBD5E1' }]} />
         <Text style={styles.name}>{habit.name}</Text>
       </View>
-
-      <View style={styles.tags}>
-        <InfoTag label="Category" value={category?.name ?? 'Uncategorised'} />
-        {habit.description ? (
-          <InfoTag label="Note" value={habit.description} />
-        ) : null}
-      </View>
+      <Text style={styles.category}>{category?.name ?? 'Uncategorised'}</Text>
     </Pressable>
   );
 }
@@ -43,9 +34,9 @@ export default function HabitCard({ habit, category }: Props) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#FCE7F3',
-    borderRadius: 14,
-    borderWidth: 1,
+    borderColor: '#F9A8D4',
+    borderRadius: 10,
+    borderWidth: 1.5,
     marginBottom: 12,
     padding: 14,
   },
@@ -56,6 +47,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: 8,
+    marginBottom: 6,
   },
   dot: {
     borderRadius: 999,
@@ -64,12 +56,12 @@ const styles = StyleSheet.create({
   },
   name: {
     color: '#111827',
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
   },
-  tags: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 10,
+  category: {
+    color: '#9D174D',
+    fontSize: 13,
+    marginLeft: 18,
   },
 });

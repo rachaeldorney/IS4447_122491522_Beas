@@ -37,6 +37,18 @@ export default function TabLayout() {
           tabBarLabel: 'Insights',
         }}
       />
+      <Tabs.Screen 
+        name="categories" 
+        options={{ 
+          href: null 
+        }} 
+      />
+      <Tabs.Screen 
+        name="targets" 
+        options={{ 
+          href: null 
+        }} 
+      />
     </Tabs>
   );
 }
