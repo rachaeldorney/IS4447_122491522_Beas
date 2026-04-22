@@ -1,4 +1,5 @@
 import HabitCard from '@/components/HabitCard';
+import PinkHeader from '@/components/ui/pink-header';
 import PrimaryButton from '@/components/ui/primary-button';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -42,9 +43,7 @@ export default function IndexScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
-       <View style={styles.header}>
-        <Text style={styles.pageTitle}>My Habits</Text>
-      </View>
+       <PinkHeader title="My Habits" />
       <View style={styles.searchWrapper}>
         <Feather name="search" size={16} color="#D4A0B0" />
         <TextInput
@@ -146,18 +145,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FCF9FA',
     flex: 1,
   },
-  header: {
-    backgroundColor: '#F9A8D4',
-    paddingHorizontal: 18,
-    paddingTop: 56,
-    paddingBottom: 16,
-  },
-  pageTitle: {
-    color: '#831843',
-    fontSize: 18,
-    fontWeight: '500',
-    alignSelf: 'center',
-},
   listContent: {
     paddingBottom: 100,
     paddingTop: 14,

@@ -1,3 +1,4 @@
+import PinkHeader from '@/components/ui/pink-header';
 import PrimaryButton from '@/components/ui/primary-button';
 import { db } from '@/db/client';
 import { habitLogs as habitLogsTable, habits as habitsTable } from '@/db/schema';
@@ -5,7 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import { eq } from 'drizzle-orm';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext, useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppContext, Habit } from '../_layout';
 
@@ -70,26 +71,8 @@ export default function HabitDetail() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
-       <View style={styles.header}>
-        <Pressable
-          accessibilityLabel="Go back"
-          accessibilityRole="button"
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Feather name="arrow-left" size={24} color="#831843" />
-        </Pressable>
-        <Text style={styles.pageTitle}>Habit Details</Text>
-        <Pressable
-          accessibilityLabel="Edit habit"
-          accessibilityRole="button"
-          onPress={() => router.push({ pathname: '/habit/[id]/edit', params: { id } })}
-          style={styles.editButton}
-        >
-          <Feather name="edit-2" size={20} color="#831843" />
-        </Pressable>
-      </View>
-
+       <PinkHeader title="Habit Details" showBack />
+  
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           {/* Habit name and category colour dot */}
           <View style={styles.nameRow}>
@@ -158,27 +141,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FCF9FA',
     flex: 1,
   },
-  header: {
-    backgroundColor: '#F9A8D4',
-    paddingHorizontal: 18,
-    paddingTop: 56,
-    paddingBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backButton: {
-    padding: 4,
-  },
    editButton: {
     padding: 4,
     marginLeft: 'auto',
-  },
-  pageTitle: {
-    color: '#831843',
-    fontSize: 18,
-    fontWeight: '500',
-    flex: 1,
-    textAlign: 'center',
   },
   content: {
     paddingHorizontal: 18,

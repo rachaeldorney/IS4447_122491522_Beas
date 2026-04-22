@@ -1,6 +1,6 @@
-import InfoTag from '@/components/ui/info-tag';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useContext } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -24,7 +24,7 @@ export default function CategoriesScreen() {
 
       <PrimaryButton
         label="Add Category"
-        onPress={() => router.push({ pathname: '/add' })}
+        onPress={() => router.push({ pathname: '/category/add' })}
       />
 
       <ScrollView
@@ -45,19 +45,20 @@ export default function CategoriesScreen() {
                 key={category.id}
                 accessibilityLabel={`${category.name}, view details`}
                 accessibilityRole="button"
-                onPress={() => router.push({ pathname: '/habit/[id]', params: { id: category.id.toString() } })}
+                onPress={() => router.push({ pathname: '/category/[id]', params: { id: category.id.toString() } })}
                 style={({ pressed }) => [
                   styles.card,
                   pressed && styles.cardPressed,
                 ]}
               >
                 <View style={styles.leftRow}>
-                  {/* Colour dot — uses the category's stored colour value */}
-                  <View style={[styles.dot, { backgroundColor: category.colour }]} />
-                  <Text style={styles.name}>{category.name}</Text>
-                </View>
-                <View style={styles.tags}>
-                  <InfoTag label="Habits" value={String(habitCount)} />
+                {/* Show the category icon in its colour, falling back to a folder icon */}
+                <Feather
+                    name={(category.icon ?? 'folder') as any}
+                    size={20}
+                    color={category.colour}
+                />
+                <Text style={styles.name}>{category.name}</Text>
                 </View>
               </Pressable>
             );

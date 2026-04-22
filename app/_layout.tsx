@@ -51,10 +51,15 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <AppContext.Provider value={{ habits, setHabits, categories, setCategories }}>
-      <Stack screenOptions={{ headerShown: false }}>
+  <AppContext.Provider value={{ habits, setHabits, categories, setCategories }}>
+    <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
-    </AppContext.Provider>
-  );
+      <Stack.Screen name="menu" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="add" options={{ headerShown: false }} />
+      <Stack.Screen name="habit/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="habit/[id]/edit" options={{ headerShown: false }} />
+      <Stack.Screen name="category" options={{ headerShown: false }} />
+</Stack>
+  </AppContext.Provider>
+);
 }
