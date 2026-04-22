@@ -23,9 +23,6 @@ export default function CategoryDetail() {
 
   if (!category) return null;
 
-  // Count how many habits belong to this category
-  // Array.filter — React and React Native 5th Ed 2024 p.330
-  const habitCount = habits.filter((h) => h.category_id === category.id).length;
 
   const deleteCategory = async () => {
     // Delete category then refresh context
@@ -43,21 +40,31 @@ export default function CategoryDetail() {
       <View style={styles.content}>
         <View>
           {/* Category name with colour dot */}
+          <View>
+          {/* Category name with icon */}
           <View style={styles.nameRow}>
             <Feather
               name={(category.icon ?? 'folder') as any}
               size={24}
               color={category.colour}
-          />
-          <Text style={styles.categoryName}>{category.name}</Text>
-        </View>
-
-          <View style={styles.detailRow}>
-            <Feather name="check-square" size={16} color="#9D174D" />
-            {/* Ternary operator for plural — habit vs habits */}
-            {/* Conditional operator — https://javascript.info/ifelse */}
-            <Text style={styles.detailText}>{habitCount} habit{habitCount === 1 ? '' : 's'} in this category</Text>
+            />
+            <Text style={styles.categoryName}>{category.name}</Text>
           </View>
+
+          {/* List each habit in this category */}
+          <Text style={styles.sectionTitle}>Habits in this category</Text>
+          {habits.filter((h) => h.category_id === category.id).length === 0 ? (
+            <Text style={styles.detailText}>No habits in this category yet</Text>
+          ) : (
+            habits
+              .filter((h) => h.category_id === category.id)
+              .map((h) => (
+                <View key={h.id} style={styles.habitRow}>
+                  <Feather name="check-square" size={14} color="#9D174D" />
+                  <Text style={styles.detailText}>{h.name}</Text>
+                </View>
+              ))
+          )}
         </View>
 
         <PrimaryButton label="Delete Category" variant="danger" onPress={deleteCategory} />
@@ -94,14 +101,23 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
   },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 14,
-  },
   detailText: {
     color: '#9D174D',
     fontSize: 15,
   },
+  sectionTitle: {
+  color: '#9D174D',
+  fontSize: 11,
+  fontWeight: '600',
+  letterSpacing: 0.5,
+  marginBottom: 12,
+  marginTop: 4,
+  textTransform: 'uppercase',
+},
+habitRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 8,
+  marginBottom: 10,
+},
 });

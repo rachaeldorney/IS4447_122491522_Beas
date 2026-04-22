@@ -1,5 +1,4 @@
-import PrimaryButton from '@/components/ui/primary-button';
-import ScreenHeader from '@/components/ui/screen-header';
+import PinkHeader from '@/components/ui/pink-header';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useContext } from 'react';
@@ -16,23 +15,15 @@ export default function CategoriesScreen() {
   const { categories, habits } = context;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScreenHeader
-        title="Categories"
-        subtitle={`${categories.length} categories`}
-      />
-
-      <PrimaryButton
-        label="Add Category"
-        onPress={() => router.push({ pathname: '/category/add' })}
-      />
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+       <PinkHeader title="Categories" />
 
       <ScrollView
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       >
         {categories.length === 0 ? (
-          <Text style={styles.emptyText}>No categories yet</Text>
+          <Text style={styles.emptyTitle}>No categories yet</Text>
         ) : (
           categories.map((category: Category) => {
             // Count habits belonging to this category — same filter pattern as index.tsx
@@ -65,28 +56,40 @@ export default function CategoriesScreen() {
           })
         )}
       </ScrollView>
+            {/* Floating action button — navigates to add category screen */}
+      <Pressable
+        accessibilityLabel="Add category"
+        accessibilityRole="button"
+        onPress={() => router.push({ pathname: '/category/add' })}
+        style={styles.fab}
+      >
+        <Feather name="plus" size={28} color="#FFFFFF" />
+      </Pressable>
+
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#FFF0F7',
+    backgroundColor: '#FCF9FA',
     flex: 1,
-    paddingHorizontal: 18,
-    paddingTop: 10,
   },
   listContent: {
-    paddingBottom: 24,
-    paddingTop: 14,
+    paddingBottom: 100,
+    paddingTop: 28,
+    paddingHorizontal: 18,
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
-    borderRadius: 14,
-    borderWidth: 1,
+    borderColor: '#FCE7F3',
+    borderRadius: 10,
+    borderWidth: 1.5,
     marginBottom: 12,
     padding: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   cardPressed: {
     opacity: 0.88,
@@ -94,27 +97,47 @@ const styles = StyleSheet.create({
   leftRow: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 10,
-  },
-  dot: {
-    borderRadius: 999,
-    height: 12,
-    width: 12,
+    gap: 12,
   },
   name: {
-    color: '#111827',
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  tags: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  emptyText: {
-    color: '#475569',
+    color: '#831843',
     fontSize: 16,
-    paddingTop: 8,
+    fontWeight: '600',
+  },
+  habitCount: {
+    color: '#9D174D',
+    fontSize: 13,
+    marginTop: 2,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingTop: 40,
+    gap: 8,
+  },
+  emptyTitle: {
+    color: '#831843',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  emptySubtext: {
+    color: '#9D174D',
+    fontSize: 14,
     textAlign: 'center',
+  },
+  fab: {
+    alignItems: 'center',
+    backgroundColor: '#EC4899',
+    borderRadius: 999,
+    bottom: 24,
+    elevation: 4,
+    height: 60,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    width: 60,
   },
 });
