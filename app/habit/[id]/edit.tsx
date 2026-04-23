@@ -1,6 +1,6 @@
 import FormField from '@/components/ui/form-field';
+import PinkHeader from '@/components/ui/pink-header';
 import PrimaryButton from '@/components/ui/primary-button';
-import ScreenHeader from '@/components/ui/screen-header';
 import { db } from '@/db/client';
 import { habits as habitsTable } from '@/db/schema';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -20,22 +20,18 @@ export default function EditHabit() {
   const isDark = colorScheme === 'dark';
 
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
   const [duration, setDuration] = useState('');
   const [notes, setNotes] = useState('');
-
-  // DropDownPicker state
   const [open, setOpen] = useState(false);
   const [categoryValue, setCategoryValue] = useState<number | null>(null);
   const [categoryItems, setCategoryItems] = useState<{ label: string; value: number }[]>([]);
 
   const habit = context?.habits.find((h: Habit) => h.id === Number(id));
 
-  // Pre-fill all fields with the existing habit data when screen loads
+  // Pre-fill fields with existing habit data
   useEffect(() => {
     if (!habit) return;
     setName(habit.name);
-    setDescription(habit.description ?? '');
     setDuration(habit.duration ? String(habit.duration) : '');
     setNotes(habit.notes ?? '');
     setCategoryValue(habit.category_id);
@@ -45,7 +41,6 @@ export default function EditHabit() {
 
   const { setHabits, categories } = context;
 
-  // Build dropdown items from categories in context
   const dropdownItems = categories.map((cat) => ({
     label: cat.name,
     value: cat.id,
@@ -53,13 +48,10 @@ export default function EditHabit() {
 
   const saveChanges = async () => {
     if (!categoryValue) return;
-
-    // Update the habit in the database then refresh context
     await db
       .update(habitsTable)
       .set({
         name,
-        description,
         duration: duration ? Number(duration) : null,
         notes,
         category_id: categoryValue,
@@ -72,19 +64,13 @@ export default function EditHabit() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#1A0A10' : '#FCF9FA' }]}>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        <ScreenHeader title="Edit Habit" subtitle={`Update ${habit.name}`} />
-
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#1A0A10' : '#FCF9FA' }]} edges={['bottom']}>
+      <PinkHeader title="Edit Habit" showBack />
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.form}>
           <FormField label="Name" value={name} onChangeText={setName} />
           <FormField label="Duration (mins)" value={duration} onChangeText={setDuration} />
           <FormField label="Notes (optional)" value={notes} onChangeText={setNotes} />
-
-          {/* Category dropdown — pre-selected with the habit's current category */}
           <DropDownPicker
             open={open}
             value={categoryValue}
@@ -98,7 +84,6 @@ export default function EditHabit() {
             listMode="SCROLLVIEW"
           />
         </View>
-
         <PrimaryButton label="Save Changes" onPress={saveChanges} />
       </ScrollView>
     </SafeAreaView>
@@ -109,22 +94,23 @@ const styles = StyleSheet.create({
   safeArea: {
     backgroundColor: '#FCF9FA',
     flex: 1,
-    padding: 20,
   },
   content: {
-    paddingBottom: 24,
+    paddingHorizontal: 18,
+    paddingTop: 32,
+    paddingBottom: 40,
   },
   form: {
-    marginBottom: 16,
+    marginBottom: 24,
+    gap: 8,
   },
   dropdown: {
-    backgroundColor: '#FCF9FA',
-    borderColor: '#CBD5E1',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FCE7F3',
     borderRadius: 10,
-    marginTop: 4,
   },
   dropdownContainer: {
-    borderColor: '#CBD5E1',
+    borderColor: '#FCE7F3',
     borderRadius: 10,
   },
 });

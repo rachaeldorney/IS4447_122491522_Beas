@@ -73,7 +73,7 @@ export default function HabitDetail() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#1A0A10' : '#FCF9FA' }]} edges={['bottom']}>
-       <PinkHeader title="Habit Details" showBack />
+       <PinkHeader title="Habit Details" showBack rightIcon="edit-2" onRightPress={() => router.push({ pathname: '/habit/[id]/edit', params: { id } })}/>
   
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           {/* Habit name and category colour dot */}
