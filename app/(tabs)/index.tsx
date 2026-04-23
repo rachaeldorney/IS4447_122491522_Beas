@@ -20,7 +20,7 @@ export default function HomeScreen() {
 
     // Gets time-based greeting using react-native-greeting package
     // https://github.com/johnylie/react-native-greeting
-  const greeting = getGreeting(''); 
+  const greeting = getGreeting('').replace(',', ''); // removes comma
 
   useEffect(() => {
     const loadTodayLogs = async () => {
@@ -34,22 +34,31 @@ export default function HomeScreen() {
         .map((log) => log.habit_id);
       setTodayLogs(todayCompleted);
 
-      // Calculate streak — count consecutive days with at least one log
-      const uniqueDates = [...new Set(logs.map((log) => log.date))].sort().reverse();
-      let currentStreak = 0;
-      const checkDate = new Date();
-      for (const date of uniqueDates) {
-        const check = checkDate.toISOString().split('T')[0];
-        if (date === check) {
-          currentStreak++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
-        }
-      }
-      setStreak(currentStreak);
-    };
+      // Current streak — counts consecutive days going back from today OR yesterday
+// Allows for the case where today hasn't been logged yet
+const uniqueDates = [...new Set(logs.map((l) => l.date))].sort().reverse();
+let bestStreak = 0;
+let currentStreak = 0;
+const checkDate = new Date();
 
+// If nothing logged today, start checking from yesterday
+const todayStr = checkDate.toISOString().split('T')[0];
+if (!uniqueDates.includes(todayStr)) {
+  checkDate.setDate(checkDate.getDate() - 1);
+}
+
+for (const date of uniqueDates) {
+  const check = checkDate.toISOString().split('T')[0];
+  if (date === check) {
+    currentStreak++;
+    bestStreak = Math.max(bestStreak, currentStreak);
+    checkDate.setDate(checkDate.getDate() - 1);
+  } else {
+    break;
+  }
+}
+  setStreak(currentStreak);
+};
     void loadTodayLogs();
   }, []);
 
@@ -107,7 +116,7 @@ export default function HomeScreen() {
         <View style={styles.streakCard}>
           <View>
             <Text style={styles.streakNumber}>{streak}</Text>
-            <Text style={styles.streakLabel}>day streak 🔥</Text>
+            <Text style={styles.streakLabel}>day streak </Text>
           </View>
           <Text style={styles.streakMotivation}>
             {streak === 0 ? 'Start your streak today!' : streak < 7 ? 'Keep it up!' : 'You\'re on fire!'}
