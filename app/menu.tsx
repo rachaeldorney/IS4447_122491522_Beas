@@ -25,7 +25,6 @@ export default function MenuScreen() {
   const isDark = colorScheme === 'dark';
 
 // Toggle between light and dark mode - https://reactnative.dev/docs/appearance
-const handleThemeToggle = async () => {
   const handleThemeToggle = async () => {
   const current = Appearance.getColorScheme();
   const next = current === 'dark' ? 'light' : 'dark';

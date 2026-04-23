@@ -2,6 +2,7 @@ import { db } from '@/db/client';
 import { categories as categoriesTable, habits as habitsTable, targets as targetsTable } from '@/db/schema';
 import { seedIfEmpty } from '@/db/seed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { createContext, useEffect, useState } from 'react';
 import { Appearance } from 'react-native';
@@ -92,6 +93,59 @@ export default function RootLayout() {
       router.replace('/login' as any);
     }
   }, [authChecked, currentUser, segments]);
+
+  useEffect(() => {
+  const configureNotificationsAsync = async () => {
+    const { granted } = await Notifications.requestPermissionsAsync();
+    if (!granted) {
+      return console.warn("Notification permissions not granted");
+    }
+
+    // Configure how notifications appear when app is in foreground
+    // https://dev.to/walter_bloggins/local-notifications-in-expo-2p47
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldPlaySound: true,
+        shouldShowAlert: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+
+    // Cancel existing notifications before rescheduling
+    await Notifications.cancelAllScheduledNotificationsAsync();
+
+    // Daily reminder at 6pm to log habits
+    // expo-notifications — https://dev.to/walter_bloggins/local-notifications-in-expo-2p47
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Béas',
+        body: "Don't forget to log your habits today!",
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour: 18,
+        minute: 0,
+      },
+    });
+
+    // Weekly check-in every Sunday at 10am
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Béas Weekly Check-in',
+        body: 'How are your targets looking this week?',
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+        weekday: 1,
+        hour: 10,
+        minute: 0,
+      },
+    });
+  };
+  void configureNotificationsAsync();
+}, []);
 
   return (
   <AppContext.Provider value={{ habits, setHabits, categories, setCategories, targets, setTargets, currentUser, setCurrentUser }}>
