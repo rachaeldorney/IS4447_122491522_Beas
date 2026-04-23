@@ -35,13 +35,13 @@ export default function CategoryDetail() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
-      <PinkHeader title="Category Details" showBack />
+      <PinkHeader title="Category Details" showBack rightIcon="edit-2"
+        onRightPress={() => router.push({ pathname: '/category/[id]/edit', params: { id } })}
+      />
       
       <View style={styles.content}>
-        <View>
-          {/* Category name with colour dot */}
           <View>
-          {/* Category name with icon */}
+          {/* Category name with icon and colour */}
           <View style={styles.nameRow}>
             <Feather
               name={(category.icon ?? 'folder') as any}
@@ -66,7 +66,6 @@ export default function CategoryDetail() {
               ))
           )}
         </View>
-
         <PrimaryButton label="Delete Category" variant="danger" onPress={deleteCategory} />
       </View>
     </SafeAreaView>

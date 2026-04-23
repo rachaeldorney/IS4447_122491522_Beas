@@ -23,9 +23,8 @@ export default function HabitDetail() {
       // https://orm.drizzle.team/docs/select
       const logs = await db.select().from(habitLogsTable).where(eq(habitLogsTable.habit_id, Number(id)));
       
-      // Build an array of the last 7 date strings to filter logs against
+      // Build an array of the last 7 date strings to filter logs against - adapted from — https://stackoverflow.com/questions/22850929/most-efficient-way-to-get-the-dates-for-the-past-7-days
       const today = new Date();
-      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
       const last7 = Array.from({ length: 7 }, (_, i) => {
         const d = new Date(today);
         d.setDate(today.getDate() - i);
@@ -62,7 +61,7 @@ export default function HabitDetail() {
     setHabits(rows);
     router.back();
   };
-
+// https://stackoverflow.com/questions/22850929/most-efficient-way-to-get-the-dates-for-the-past-7-days
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - i);

@@ -4,16 +4,22 @@ import { db } from '@/db/client';
 import { targets as targetsTable } from '@/db/schema';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppContext } from '../_layout';
 
-// Period options for the target
 const periods = [
   { label: 'Daily', value: 'daily' },
   { label: 'Weekly', value: 'weekly' },
   { label: 'Monthly', value: 'monthly' },
+];
+
+// Target type options — global, per category, or per habit
+const targetTypes = [
+  { label: 'Global', value: 'global' },
+  { label: 'Category', value: 'category' },
+  { label: 'Habit', value: 'habit' },
 ];
 
 export default function AddTarget() {
@@ -22,35 +28,49 @@ export default function AddTarget() {
 
   const [goal, setGoal] = useState(1);
   const [period, setPeriod] = useState<string>('weekly');
-  const [open, setOpen] = useState(false);
+  const [targetType, setTargetType] = useState('global');
+
+  // Habit dropdown state react-native-dropdown-picker — https://github.com/hossein-zare/react-native-dropdown-picker
   const [habitOpen, setHabitOpen] = useState(false);
   const [habitValue, setHabitValue] = useState<number | null>(null);
   const [habitItems, setHabitItems] = useState<{ label: string; value: number }[]>([]);
 
-  if (!context) return null;
-  const { habits, setTargets } = context;
+  // Category dropdown state
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [categoryValue, setCategoryValue] = useState<number | null>(null);
+  const [categoryItems, setCategoryItems] = useState<{ label: string; value: number }[]>([]);
 
-  // Build dropdown items from habits in context
+  if (!context) return null;
+  const { habits, categories, setTargets } = context;
+
+  // Build dropdown items from habits and categories in context
+  // Array.map() — React and React Native Chapter 2
   const habitDropdownItems = habits.map((h) => ({
     label: h.name,
     value: h.id,
   }));
 
-  const saveTarget = async () => {
-    if (!habitValue) return;
+  const categoryDropdownItems = categories.map((c) => ({
+    label: c.name,
+    value: c.id,
+  }));
 
-    // Insert new target then go back
+  const saveTarget = async () => {
+    // Validate based on target type before saving
+    if (targetType === 'habit' && !habitValue) return;
+    if (targetType === 'category' && !categoryValue) return;
+
+     // Conditionally set habit_id or category_id based on target type
     await db.insert(targetsTable).values({
       user_id: 1,
-      habit_id: habitValue,
+      habit_id: targetType === 'habit' ? habitValue : null,
+      category_id: targetType === 'category' ? categoryValue : null,
       period,
       goal,
     });
 
-    // Refresh targets in context so the list updates immediately
     const rows = await db.select().from(targetsTable);
     setTargets(rows);
-
     router.back();
   };
 
@@ -58,28 +78,74 @@ export default function AddTarget() {
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <PinkHeader title="Add Target" showBack />
 
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.form}>
 
-          {/* Habit picker — select which habit this target applies to */}
-          <Text style={styles.label}>Habit</Text>
-          <DropDownPicker
-            open={habitOpen}
-            value={habitValue}
-            items={habitDropdownItems}
-            setOpen={setHabitOpen}
-            setValue={setHabitValue}
-            setItems={setHabitItems}
-            placeholder="Select a habit"
-            style={styles.dropdown}
-            dropDownContainerStyle={styles.dropdownContainer}
-            listMode="SCROLLVIEW"
-            zIndex={3000}
-            zIndexInverse={1000}
-          />
+          {/* Target type selector — global, category or habit */}
+          <Text style={styles.label}>Target Type</Text>
+          <View style={styles.periodRow}>
+            {targetTypes.map((t) => {
+              const isSelected = targetType === t.value;
+              return (
+                <Pressable
+                  key={t.value}
+                  accessibilityLabel={`Select ${t.label}`}
+                  accessibilityRole="button"
+                  onPress={() => setTargetType(t.value)}
+                  style={[styles.periodButton, isSelected && styles.periodButtonSelected]}
+                >
+                  <Text style={[styles.periodButtonText, isSelected && styles.periodButtonTextSelected]}>
+                    {t.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
 
-          {/* Period picker — daily, weekly or monthly */}
-          <Text style={[styles.label, { marginTop: 16 }]}>Period</Text>
+          {/* {/* Conditionally renders habit picker only when habit type is selected */}
+          {targetType === 'habit' && (
+            <>
+              <Text style={styles.label}>Habit</Text>
+              <DropDownPicker
+                open={habitOpen}
+                value={habitValue}
+                items={habitDropdownItems}
+                setOpen={setHabitOpen}
+                setValue={setHabitValue}
+                setItems={setHabitItems}
+                placeholder="Select a habit"
+                style={styles.dropdown}
+                dropDownContainerStyle={styles.dropdownContainer}
+                listMode="SCROLLVIEW"
+                zIndex={3000}
+                zIndexInverse={1000}
+              />
+            </>
+          )}
+
+          {/* Show category picker only when category type is selected */}
+          {targetType === 'category' && (
+            <>
+              <Text style={styles.label}>Category</Text>
+              <DropDownPicker
+                open={categoryOpen}
+                value={categoryValue}
+                items={categoryDropdownItems}
+                setOpen={setCategoryOpen}
+                setValue={setCategoryValue}
+                setItems={setCategoryItems}
+                placeholder="Select a category"
+                style={styles.dropdown}
+                dropDownContainerStyle={styles.dropdownContainer}
+                listMode="SCROLLVIEW"
+                zIndex={2000}
+                zIndexInverse={2000}
+              />
+            </>
+          )}
+
+          {/* Period picker */}
+          <Text style={styles.label}>Period</Text>
           <View style={styles.periodRow}>
             {periods.map((p) => {
               const isSelected = period === p.value;
@@ -89,15 +155,9 @@ export default function AddTarget() {
                   accessibilityLabel={`Select ${p.label}`}
                   accessibilityRole="button"
                   onPress={() => setPeriod(p.value)}
-                  style={[
-                    styles.periodButton,
-                    isSelected && styles.periodButtonSelected,
-                  ]}
+                  style={[styles.periodButton, isSelected && styles.periodButtonSelected]}
                 >
-                  <Text style={[
-                    styles.periodButtonText,
-                    isSelected && styles.periodButtonTextSelected,
-                  ]}>
+                  <Text style={[styles.periodButtonText, isSelected && styles.periodButtonTextSelected]}>
                     {p.label}
                   </Text>
                 </Pressable>
@@ -105,8 +165,8 @@ export default function AddTarget() {
             })}
           </View>
 
-          {/* Goal number picker — increment and decrement buttons */}
-          <Text style={[styles.label, { marginTop: 16 }]}>Goal</Text>
+          {/* Goal picker */}
+          <Text style={styles.label}>Goal</Text>
           <View style={styles.goalRow}>
             <Pressable
               accessibilityLabel="Decrease goal"
@@ -127,12 +187,12 @@ export default function AddTarget() {
             </Pressable>
           </View>
           <Text style={styles.goalHint}>
-            Complete this habit {goal} {goal === 1 ? 'time' : 'times'} {period}
+            {targetType === 'global' ? 'Complete any habit' : targetType === 'category' ? 'Complete habits in this category' : 'Complete this habit'} {goal} {goal === 1 ? 'time' : 'times'} {period}
           </Text>
         </View>
 
         <PrimaryButton label="Save Target" onPress={saveTarget} />
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -143,14 +203,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    flex: 1,
     paddingHorizontal: 24,
     paddingTop: 35,
-    paddingBottom: 24,
-    justifyContent: 'space-between',
+    paddingBottom: 40,
   },
   form: {
     gap: 24,
+    marginBottom: 24,
   },
   label: {
     color: '#831843',
@@ -193,36 +252,36 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   goalRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 16,
-  marginBottom: 8,
-},
- goalButton: {
-  backgroundColor: '#FCE7F3',
-  borderRadius: 8,
-  height: 36,
-  width: 36,
-  alignItems: 'center',
-  justifyContent: 'center',
-},
- goalButtonText: {
-  color: '#831843',
-  fontSize: 18,
-  fontWeight: '500',
-},
- goalNumber: {
-  color: '#831843',
-  fontSize: 24,
-  fontWeight: '700',
-  minWidth: 32,
-  textAlign: 'center',
-},
-goalHint: {
-  color: '#9D174D',
-  fontSize: 13,
-  marginTop: 8,
-  textAlign: 'center',
-},
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+    marginBottom: 8,
+  },
+  goalButton: {
+    backgroundColor: '#FCE7F3',
+    borderRadius: 8,
+    height: 36,
+    width: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  goalButtonText: {
+    color: '#831843',
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  goalNumber: {
+    color: '#831843',
+    fontSize: 24,
+    fontWeight: '700',
+    minWidth: 32,
+    textAlign: 'center',
+  },
+  goalHint: {
+    color: '#9D174D',
+    fontSize: 13,
+    marginTop: 8,
+    textAlign: 'center',
+  },
 });

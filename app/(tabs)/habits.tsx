@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppContext, Habit } from '../_layout';
 
@@ -12,17 +13,39 @@ export default function IndexScreen() {
   const router = useRouter();
   const context = useContext(AppContext);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedDate, setSelectedDate] = useState('all');
+
+  // DropDownPicker state for category filter
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [categoryValue, setCategoryValue] = useState<string | null>(null);
+  const [categoryItems, setCategoryItems] = useState<{ label: string; value: string }[]>([]);
 
   if (!context) return null;
 
   const { habits, categories } = context;
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
-  const categoryOptions = [
-    'All',
-    ...categories.map((c) => c.name),
+  // Build category dropdown items from context
+  const categoryDropdownItems = [
+    { label: 'All Categories', value: 'all' },
+    ...categories.map((c) => ({ label: c.name, value: c.name })),
   ];
+
+  const dateOptions = [
+    { label: 'All Time', value: 'all' },
+    { label: 'Today', value: 'today' },
+    { label: 'This Week', value: 'week' },
+    { label: 'This Month', value: 'month' },
+  ];
+
+  const today = new Date().toISOString().split('T')[0];
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  const weekStartStr = weekStart.toISOString().split('T')[0];
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  const monthStartStr = monthStart.toISOString().split('T')[0];
+
 
   const filteredHabits = habits.filter((habit: Habit) => {
     const matchesSearch =
@@ -30,20 +53,29 @@ export default function IndexScreen() {
       habit.name.toLowerCase().includes(normalizedQuery);
 
     // Look up the category name by matching category_id
+    // React and React Native 5th Ed 2024 p.364
     const matchesCategory =
-      selectedCategory === 'All' ||
-      categories.find((c) => c.id === habit.category_id)?.name === selectedCategory;
+       !categoryValue || categoryValue === 'all' ||
+      categories.find((c) => c.id === habit.category_id)?.name === categoryValue;
 
-    return matchesSearch && matchesCategory;
+    // Filter by date habit was created
+    const matchesDate =
+      selectedDate === 'all' ||
+      (selectedDate === 'today' && habit.created_at.startsWith(today)) ||
+      (selectedDate === 'week' && habit.created_at >= weekStartStr) ||
+      (selectedDate === 'month' && habit.created_at >= monthStartStr);
+
+    return matchesSearch && matchesCategory && matchesDate;
   });
 
-  // True when either the search box has text or a category filter is active
+  // True when any filter is active
   // https://react.dev/learn/conditional-rendering
-  const isFiltered = normalizedQuery.length > 0 || selectedCategory !== 'All';
+  const isFiltered = normalizedQuery.length > 0 || (categoryValue !== null && categoryValue !== 'all') || selectedDate !== 'all';
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
-       <PinkHeader title="My Habits" />
+      <PinkHeader title="My Habits" />
+
       <View style={styles.searchWrapper}>
         <Feather name="search" size={16} color="#D4A0B0" />
         <TextInput
@@ -55,43 +87,54 @@ export default function IndexScreen() {
         />
       </View>
 
-      {/* Category filter pills — tapping one sets selectedCategory */}
-      <View style={styles.filterRow}>
-        {categoryOptions.map((name) => {
-          const isSelected = selectedCategory === name;
-          return (
-            <Pressable
-              key={name}
-              accessibilityLabel={`Filter by ${name}`}
-              accessibilityRole="button"
-              onPress={() => setSelectedCategory(name)}
-              style={[
-                styles.filterButton,
-                isSelected && styles.filterButtonSelected,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.filterButtonText,
-                  isSelected && styles.filterButtonTextSelected,
-                ]}
+     <View style={styles.filterSection}>
+        {/* Category dropdown */}
+        <View style={styles.dropdownWrapper}>
+          <DropDownPicker
+            open={categoryOpen}
+            value={categoryValue}
+            items={categoryDropdownItems}
+            setOpen={setCategoryOpen}
+            setValue={setCategoryValue}
+            setItems={setCategoryItems}
+            placeholder="Category"
+            style={styles.dropdown}
+            dropDownContainerStyle={styles.dropdownContainer}
+            listMode="SCROLLVIEW"
+            zIndex={3000}
+          />
+        </View>
+
+        {/* Date filter pills */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.datePills}>
+          {dateOptions.map((option) => {
+            const isSelected = selectedDate === option.value;
+            return (
+              <Pressable
+                key={option.value}
+                accessibilityLabel={`Filter by ${option.label}`}
+                accessibilityRole="button"
+                onPress={() => setSelectedDate(option.value)}
+                style={[styles.dateButton, isSelected && styles.dateButtonSelected]}
               >
-                {name}
-              </Text>
-            </Pressable>
-          );
-        })}
+                <Text style={[styles.dateButtonText, isSelected && styles.dateButtonTextSelected]}>
+                  {option.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
       </View>
+
       <ScrollView
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       >
-         {/*  Two different empty states — one for when filters return no results, one for when no habits exist at all */}
-         {/* https://react.dev/learn/conditional-rendering */}
+        {/* Two different empty states */}
+        {/* https://react.dev/learn/conditional-rendering */}
         {filteredHabits.length === 0 ? (
           <View style={styles.emptyState}>
             {isFiltered ? (
-              // Filters are active but nothing matches — give the user a way to reset
               <>
                 <Text style={styles.emptyTitle}>No habits match your search</Text>
                 <Text style={styles.emptySubtext}>Try clearing your search or selecting a different category</Text>
@@ -100,12 +143,12 @@ export default function IndexScreen() {
                   variant="secondary"
                   onPress={() => {
                     setSearchQuery('');
-                    setSelectedCategory('All');
+                    setCategoryValue(null);
+                    setSelectedDate('all');
                   }}
                 />
               </>
             ) : (
-              // No habits exist at all — prompt the user to create their first one
               <>
                 <Text style={styles.emptyTitle}>No habits yet</Text>
                 <Text style={styles.emptySubtext}>Tap the + button to add your first habit</Text>
@@ -113,21 +156,17 @@ export default function IndexScreen() {
             )}
           </View>
         ) : (
-          // Render a HabitCard for each habit that passes the filters
           filteredHabits.map((habit: Habit) => (
             <HabitCard
               key={habit.id}
               habit={habit}
-              // Category lookup using Array.find() with optional chaining
-              // Matches each habit to its category by comparing category_id
-              // React and React Native 5th Ed 2024 p.364
               category={categories.find((c) => c.id === habit.category_id)}
             />
           ))
         )}
       </ScrollView>
 
-      {/* Floating action button — fixed to bottom right, navigates to add habit screen */}
+      {/* Floating action button */}
       <Pressable
         accessibilityLabel="Add habit"
         accessibilityRole="button"
@@ -162,39 +201,53 @@ const styles = StyleSheet.create({
     marginTop: 25,
     paddingHorizontal: 12,
     paddingVertical: 10,
-},
+  },
   searchInput: {
     color: '#9D174D',
     flex: 1,
-    fontSize: 15, 
+    fontSize: 15,
   },
-  filterRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 16,
-    marginBottom: 16,
-    paddingHorizontal: 18,
-
+  filterSection: {
+    marginTop: 12,
+    marginHorizontal: 18,
+    gap: 10,
+    zIndex: 3000,
   },
-  filterButton: {
+  dropdownWrapper: {
+    zIndex: 3000,
+  },
+  dropdown: {
     backgroundColor: '#FFFFFF',
     borderColor: '#FCE7F3',
-    borderRadius: 999,
+    borderRadius: 8,
     borderWidth: 1,
+  },
+  dropdownContainer: {
+    borderColor: '#FCE7F3',
+    borderRadius: 8,
+  },
+  datePills: {
+    flexDirection: 'row',
+  },
+  dateButton: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FCE7F3',
+    borderRadius: 8,
+    borderWidth: 1,
+    marginRight: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  filterButtonSelected: {
+  dateButtonSelected: {
     backgroundColor: '#831843',
     borderColor: '#831843',
   },
-  filterButtonText: {
+  dateButtonText: {
     color: '#831843',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
   },
-  filterButtonTextSelected: {
+  dateButtonTextSelected: {
     color: '#FFFFFF',
   },
   emptyState: {
