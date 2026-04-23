@@ -3,8 +3,10 @@ import { db } from '@/db/client';
 import { habitLogs as habitLogsTable } from '@/db/schema';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Feather } from '@expo/vector-icons';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 import { useContext, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BarChart, PieChart } from 'react-native-gifted-charts';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppContext } from '../_layout';
@@ -124,6 +126,32 @@ export default function InsightsScreen() {
       break;
     }
   }
+  const exportCSV = async () => {
+  // Build CSV header and rows from habit logs
+  // CSV format — https://datatracker.ietf.org/doc/html/rfc4180
+  const header = 'habit,category,date,count\n';
+  const rows = logs.map((log) => {
+    const habit = habits.find((h) => h.id === log.habit_id);
+    const category = categories.find((c) => c.id === habit?.category_id);
+    return `${habit?.name ?? 'Unknown'},${category?.name ?? 'Unknown'},${log.date},1`;
+  }).join('\n');
+
+  const csv = header + rows;
+
+  // Write CSV to device filesystem
+  // expo-file-system — https://docs.expo.dev/versions/latest/sdk/filesystem/
+  const fileUri = (FileSystem.documentDirectory ?? '') + 'beas_export.csv';
+  await FileSystem.writeAsStringAsync(fileUri, csv, {
+    encoding: FileSystem.EncodingType.UTF8,
+  });
+
+  // Share the file using the device share sheet
+  // expo-sharing — https://docs.expo.dev/versions/latest/sdk/sharing/
+  await Sharing.shareAsync(fileUri, {
+    mimeType: 'text/csv',
+    dialogTitle: 'Export Béas Data',
+  });
+};
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#1A0A10' : '#FCF9FA' }]} edges={['bottom']}>
@@ -237,6 +265,15 @@ export default function InsightsScreen() {
         </View>
         <Text style={styles.highlightValue}>{leastCompleted.name} ({leastCompleted.count} {leastCompleted.count === 1 ? 'time' : 'times'})</Text>
         </View>
+            <Pressable
+    accessibilityLabel="Export data as CSV"
+    accessibilityRole="button"
+    onPress={exportCSV}
+    style={styles.exportButton}
+    >
+    <Feather name="download" size={16} color="#831843" />
+    <Text style={styles.exportLabel}>Export as CSV</Text>
+    </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
@@ -351,5 +388,20 @@ const styles = StyleSheet.create({
   alignItems: 'center',
   gap: 6,
   marginBottom: 4,
+},
+exportButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  backgroundColor: '#FCE7F3',
+  borderRadius: 10,
+  padding: 14,
+  marginTop: 8,
+},
+exportLabel: {
+  color: '#831843',
+  fontSize: 14,
+  fontWeight: '600',
 },
 });

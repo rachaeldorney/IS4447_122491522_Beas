@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "4447-122491522",
+    "name": "Béas",
     "slug": "4447-122491522",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "4447122491522",
+    "icon": "./assets/images/Logo.png",
+    "scheme": "beas",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -30,12 +30,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/Logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#FCF9FA",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#1A0A10"
           }
         }
       ]
@@ -43,6 +43,18 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "4be59a9b-bdce-4b48-a85d-838e319a206d"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4be59a9b-bdce-4b48-a85d-838e319a206d"
     }
   }
 }
