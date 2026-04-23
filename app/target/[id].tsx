@@ -2,6 +2,7 @@ import PinkHeader from '@/components/ui/pink-header';
 import PrimaryButton from '@/components/ui/primary-button';
 import { db } from '@/db/client';
 import { habitLogs as habitLogsTable, targets as targetsTable } from '@/db/schema';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Feather } from '@expo/vector-icons';
 import { eq } from 'drizzle-orm';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -14,6 +15,8 @@ export default function TargetDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const context = useContext(AppContext);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [completedCount, setCompletedCount] = useState(0);
 
   useEffect(() => {
@@ -67,7 +70,7 @@ export default function TargetDetail() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#1A0A10' : '#FCF9FA' }]} edges={['bottom']}>
       <PinkHeader title="Target Details" showBack />
       <View style={styles.content}>
         <View>

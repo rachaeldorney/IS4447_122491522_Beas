@@ -1,4 +1,6 @@
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Pressable, StyleSheet, Text } from 'react-native';
+
 
 type Props = {
   label: string;
@@ -12,7 +14,9 @@ export default function PrimaryButton({
   onPress,
   compact = false,
   variant = 'primary',
-}: Props) {
+}: Props) { 
+const colorScheme = useColorScheme();
+const isDark = colorScheme === 'dark';
   return (
     <Pressable
       accessibilityLabel={label}

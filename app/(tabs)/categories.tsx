@@ -1,4 +1,5 @@
 import PinkHeader from '@/components/ui/pink-header';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useContext } from 'react';
@@ -9,13 +10,15 @@ import { AppContext, Category } from '../_layout';
 export default function CategoriesScreen() {
   const router = useRouter();
   const context = useContext(AppContext);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   if (!context) return null;
 
   const { categories, habits } = context;
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#1A0A10' : '#FCF9FA' }]} edges={['bottom']}>
        <PinkHeader title="Categories" />
 
       <ScrollView

@@ -3,6 +3,7 @@ import PinkHeader from '@/components/ui/pink-header';
 import PrimaryButton from '@/components/ui/primary-button';
 import { db } from '@/db/client';
 import { categories as categoriesTable } from '@/db/schema';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
@@ -46,6 +47,8 @@ const icons: { name: string; label: string }[] = [
 export default function AddCategory() {
   const router = useRouter();
   const context = useContext(AppContext);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [name, setName] = useState('');
   const [selectedColour, setSelectedColour] = useState(colours[0]);
   const [selectedIcon, setSelectedIcon] = useState(icons[0].name);
@@ -71,7 +74,7 @@ export default function AddCategory() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#1A0A10' : '#FCF9FA' }]} edges={['bottom']}>
      <PinkHeader title="Add Category" showBack />
         
       <View style={styles.content}>

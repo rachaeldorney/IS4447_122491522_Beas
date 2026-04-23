@@ -1,3 +1,4 @@
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -12,6 +13,9 @@ type Props = {
 // Reusable pink header used across all screens
 export default function PinkHeader({ title, showBack = false, rightIcon, onRightPress }: Props) {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
 
   return (
     <View style={styles.header}>

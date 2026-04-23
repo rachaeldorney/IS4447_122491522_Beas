@@ -2,6 +2,7 @@ import PinkHeader from '@/components/ui/pink-header';
 import PrimaryButton from '@/components/ui/primary-button';
 import { db } from '@/db/client';
 import { targets as targetsTable } from '@/db/schema';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -25,6 +26,8 @@ const targetTypes = [
 export default function AddTarget() {
   const router = useRouter();
   const context = useContext(AppContext);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const [goal, setGoal] = useState(1);
   const [period, setPeriod] = useState<string>('weekly');
@@ -75,7 +78,7 @@ export default function AddTarget() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#1A0A10' : '#FCF9FA' }]} edges={['bottom']}>
       <PinkHeader title="Add Target" showBack />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

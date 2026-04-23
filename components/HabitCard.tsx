@@ -1,4 +1,5 @@
 import { Category, Habit } from '@/app/_layout';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -11,6 +12,10 @@ export default function HabitCard({ habit, category }: Props) {
   const router = useRouter();
   const openDetails = () =>
     router.push({ pathname: '/habit/[id]', params: { id: habit.id.toString() } });
+
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
 
   return (
     <Pressable

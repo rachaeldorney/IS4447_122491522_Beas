@@ -1,5 +1,6 @@
 import { db } from '@/db/client';
 import { habitLogs as habitLogsTable } from '@/db/schema';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Feather } from '@expo/vector-icons';
 import { and, eq } from 'drizzle-orm';
 import { useRouter } from 'expo-router';
@@ -13,6 +14,9 @@ import { AppContext, Habit } from '../_layout';
 export default function HomeScreen() {
   const router = useRouter();
   const context = useContext(AppContext);
+
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [todayLogs, setTodayLogs] = useState<number[]>([]);
   const [streak, setStreak] = useState(0);
 
@@ -87,7 +91,7 @@ for (const date of uniqueDates) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#1A0A10' : '#FCF9FA' }]} edges={['bottom']}>
       {/* Header section */}
       <View style={styles.header}>
         <View>
@@ -150,7 +154,7 @@ for (const date of uniqueDates) {
                 {/* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing */}
               <View style={[styles.dot, { backgroundColor: category?.colour ?? '#CBD5E1' }]} />
               {/* Applies strikethrough  when the habit has been completed */}
-              <Text style={[styles.habitName, isDone && styles.habitDone]}>{habit.name}</Text>
+              <Text style={[styles.habitName, isDone && styles.habitDone, { color: isDark ? '#F9A8D4' : '#111827' }]}>{habit.name}</Text>
               {/* Renders the checkbox, filled with a tick icon when the habit is done today */}
               <View style={[styles.checkbox, isDone && styles.checkboxDone]}>
                 {/* Only renders the check icon inside the checkbox when the habit is marked as done */}

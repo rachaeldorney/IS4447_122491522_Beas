@@ -1,8 +1,10 @@
 import { db } from '@/db/client';
-import { categories as categoriesTable, habits as habitsTable } from '@/db/schema';
+import { categories as categoriesTable, habits as habitsTable, targets as targetsTable } from '@/db/schema';
 import { seedIfEmpty } from '@/db/seed';
-import { Stack } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { createContext, useEffect, useState } from 'react';
+import { Appearance } from 'react-native';
 
 // Habit type — matches the habits table
 export type Habit = {
@@ -43,6 +45,8 @@ type AppContextType = {
   setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
   targets: Target[];
   setTargets: React.Dispatch<React.SetStateAction<Target[]>>;
+  currentUser: { id: number; email: string } | null;
+  setCurrentUser: React.Dispatch<React.SetStateAction<{ id: number; email: string } | null>>;
 };
 
 export const AppContext = createContext<AppContextType | null>(null);
@@ -51,20 +55,46 @@ export default function RootLayout() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [targets, setTargets] = useState<Target[]>([]); 
+  const [currentUser, setCurrentUser] = useState<{ id: number; email: string } | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const router = useRouter();
+  const segments = useSegments();
 
   useEffect(() => {
-    const loadData = async () => {
-      await seedIfEmpty(); // populate sample data on first launch
-      const habitRows = await db.select().from(habitsTable);
-      const categoryRows = await db.select().from(categoriesTable);
-      setHabits(habitRows);
-      setCategories(categoryRows);
-    };
-    void loadData();
-  }, []);
+  const loadTheme = async () => {
+    const saved = await AsyncStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'light') {
+      Appearance.setColorScheme(saved);
+    }
+  };
+  void loadTheme();
+}, []);
+
+  useEffect(() => {
+  const loadData = async () => {
+    await seedIfEmpty();
+    const habitRows = await db.select().from(habitsTable);
+    const categoryRows = await db.select().from(categoriesTable);
+    const targetRows = await db.select().from(targetsTable);
+    setHabits(habitRows);
+    setCategories(categoryRows);
+    setTargets(targetRows);
+    setAuthChecked(true);
+  };
+  void loadData();
+}, []);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authChecked) return;
+    const inAuthScreen = segments[0]?.toString() === 'login' || segments[0]?.toString() === 'register';
+    if (!currentUser && !inAuthScreen) {
+      router.replace('/login' as any);
+    }
+  }, [authChecked, currentUser, segments]);
 
   return (
-  <AppContext.Provider value={{ habits, setHabits, categories, setCategories, targets, setTargets }}>
+  <AppContext.Provider value={{ habits, setHabits, categories, setCategories, targets, setTargets, currentUser, setCurrentUser }}>
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="menu" options={{ presentation: 'modal' }} />
@@ -73,7 +103,9 @@ export default function RootLayout() {
       <Stack.Screen name="habit/[id]/edit" options={{ headerShown: false }} />
       <Stack.Screen name="category" options={{ headerShown: false }} />
       <Stack.Screen name="target" options={{ headerShown: false }} />
-</Stack>
+      <Stack.Screen name="login" options={{ headerShown: false }} />
+      <Stack.Screen name="register" options={{ headerShown: false }} />
+      </Stack>
   </AppContext.Provider>
 );
 }

@@ -1,13 +1,18 @@
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
+
 
 type Props = {
   label: string;
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
+  secureTextEntry?: boolean;
 };
 
-export default function FormField({ label, value, onChangeText, placeholder }: Props) {
+export default function FormField({ label, value, onChangeText, placeholder, secureTextEntry }: Props) {
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';  
   return (
     <View style={styles.wrapper}>
       <Text style={styles.label}>{label}</Text>
@@ -15,7 +20,8 @@ export default function FormField({ label, value, onChangeText, placeholder }: P
         accessibilityLabel={label}
         placeholder={placeholder ?? ''}
         value={value}
-        onChangeText={onChangeText}
+        onChangeText={onChangeText}  secureTextEntry={secureTextEntry}
+
         style={styles.input}
       />
     </View>

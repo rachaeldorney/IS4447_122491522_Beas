@@ -2,6 +2,7 @@ import PinkHeader from '@/components/ui/pink-header';
 import PrimaryButton from '@/components/ui/primary-button';
 import { db } from '@/db/client';
 import { categories as categoriesTable } from '@/db/schema';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Feather } from '@expo/vector-icons';
 import { eq } from 'drizzle-orm';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -14,6 +15,8 @@ export default function CategoryDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const context = useContext(AppContext);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   if (!context) return null;
 
@@ -34,7 +37,7 @@ export default function CategoryDetail() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#1A0A10' : '#FCF9FA' }]} edges={['bottom']}>
       <PinkHeader title="Category Details" showBack rightIcon="edit-2"
         onRightPress={() => router.push({ pathname: '/category/[id]/edit', params: { id } })}
       />

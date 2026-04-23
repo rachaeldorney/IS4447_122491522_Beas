@@ -3,6 +3,7 @@ import PinkHeader from '@/components/ui/pink-header';
 import PrimaryButton from '@/components/ui/primary-button';
 import { db } from '@/db/client';
 import { habits as habitsTable } from '@/db/schema';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -13,6 +14,8 @@ import { AppContext } from './_layout';
 export default function AddHabit() {
   const router = useRouter();
   const context = useContext(AppContext);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -52,7 +55,7 @@ export default function AddHabit() {
   };
 
   return (
-  <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+  <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#1A0A10' : '#FCF9FA' }]} edges={['bottom']}>
     <PinkHeader title="Add Habit" showBack />
    
     <View style={styles.content}>

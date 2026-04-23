@@ -1,6 +1,7 @@
 import PinkHeader from '@/components/ui/pink-header';
 import { db } from '@/db/client';
 import { habitLogs as habitLogsTable } from '@/db/schema';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Feather } from '@expo/vector-icons';
 import { useContext, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -10,9 +11,12 @@ import { AppContext } from '../_layout';
 
 export default function InsightsScreen() {
   const context = useContext(AppContext);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [logs, setLogs] = useState<{ date: string; habit_id: number }[]>([]);
   const [selectedBar, setSelectedBar] = useState<{ date: string; count: number } | null>(null);
   const [selectedSlice, setSelectedSlice] = useState<{ name: string; count: number } | null>(null);
+
 
   useEffect(() => {
     const loadLogs = async () => {
@@ -122,7 +126,7 @@ export default function InsightsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#1A0A10' : '#FCF9FA' }]} edges={['bottom']}>
       <PinkHeader title="Insights" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 

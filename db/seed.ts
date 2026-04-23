@@ -38,32 +38,38 @@ await db.insert(habits).values([
     { user_id: 1, category_id: 3, name: 'Read', description: 'Read for 20 mins', created_at: '2024-01-01' },
   ]);
 
-  await db.insert(habitLogs).values([
-  { habit_id: 1, date: '2024-01-01', count: 1 },
-  { habit_id: 1, date: '2024-01-02', count: 1 },
-  { habit_id: 1, date: '2024-01-03', count: 1 },
-  { habit_id: 2, date: '2024-01-01', count: 1 },
-  { habit_id: 2, date: '2024-01-02', count: 1 },
-  { habit_id: 3, date: '2024-01-01', count: 1 },
-  { habit_id: 3, date: '2024-01-02', count: 1 },
-  { habit_id: 3, date: '2024-01-03', count: 1 },
-  { habit_id: 4, date: '2024-01-01', count: 1 },
-  { habit_id: 4, date: '2024-01-02', count: 1 },
-  { habit_id: 5, date: '2024-01-01', count: 1 },
-  { habit_id: 5, date: '2024-01-02', count: 1 },
-  { habit_id: 5, date: '2024-01-03', count: 1 },
-  { habit_id: 6, date: '2024-01-01', count: 1 },
-  { habit_id: 6, date: '2024-01-02', count: 1 },
-  { habit_id: 7, date: '2024-01-01', count: 1 },
-  { habit_id: 7, date: '2024-01-02', count: 1 },
-  { habit_id: 8, date: '2024-01-01', count: 1 },
-  { habit_id: 9, date: '2024-01-01', count: 1 },
-  { habit_id: 9, date: '2024-01-02', count: 1 },
-  { habit_id: 10, date: '2024-01-01', count: 1 },
-  { habit_id: 10, date: '2024-01-02', count: 1 },
-  { habit_id: 11, date: '2024-01-01', count: 1 },
-  { habit_id: 12, date: '2024-01-01', count: 1 },
-  { habit_id: 12, date: '2024-01-02', count: 1 },
+ await db.insert(habitLogs).values([
+  // April 17
+  { habit_id: 1, date: '2026-04-17', count: 1 },
+  { habit_id: 2, date: '2026-04-17', count: 1 },
+  { habit_id: 3, date: '2026-04-17', count: 1 },
+  // April 18
+  { habit_id: 4, date: '2026-04-18', count: 1 },
+  { habit_id: 5, date: '2026-04-18', count: 1 },
+  { habit_id: 1, date: '2026-04-18', count: 1 },
+  // April 19
+  { habit_id: 6, date: '2026-04-19', count: 1 },
+  { habit_id: 7, date: '2026-04-19', count: 1 },
+  { habit_id: 2, date: '2026-04-19', count: 1 },
+  { habit_id: 3, date: '2026-04-19', count: 1 },
+  // April 20
+  { habit_id: 8, date: '2026-04-20', count: 1 },
+  { habit_id: 9, date: '2026-04-20', count: 1 },
+  { habit_id: 1, date: '2026-04-20', count: 1 },
+  // April 21
+  { habit_id: 10, date: '2026-04-21', count: 1 },
+  { habit_id: 11, date: '2026-04-21', count: 1 },
+  { habit_id: 4, date: '2026-04-21', count: 1 },
+  { habit_id: 5, date: '2026-04-21', count: 1 },
+  // April 22
+  { habit_id: 12, date: '2026-04-22', count: 1 },
+  { habit_id: 1, date: '2026-04-22', count: 1 },
+  { habit_id: 2, date: '2026-04-22', count: 1 },
+  { habit_id: 6, date: '2026-04-22', count: 1 },
+  // April 23
+  { habit_id: 3, date: '2026-04-23', count: 1 },
+  { habit_id: 7, date: '2026-04-23', count: 1 },
+  { habit_id: 8, date: '2026-04-23', count: 1 },
 ]);
 
   await db.insert(targets).values([

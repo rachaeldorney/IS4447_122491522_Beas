@@ -53,6 +53,8 @@ describe('HabitList', () => {
         setCategories: jest.fn(),
         targets: [],
         setTargets: jest.fn(),
+        currentUser: null,
+        setCurrentUser: jest.fn(),
       }}>
         <IndexScreen />
       </AppContext.Provider>

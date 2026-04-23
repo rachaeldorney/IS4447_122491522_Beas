@@ -2,6 +2,7 @@ import PinkHeader from '@/components/ui/pink-header';
 import PrimaryButton from '@/components/ui/primary-button';
 import { db } from '@/db/client';
 import { habitLogs as habitLogsTable, habits as habitsTable } from '@/db/schema';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Feather } from '@expo/vector-icons';
 import { eq } from 'drizzle-orm';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -14,6 +15,8 @@ export default function HabitDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const context = useContext(AppContext);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [recentLogs, setRecentLogs] = useState<string[]>([]);
 
 // Fetches habit logs from SQLite when the screen loads
@@ -69,7 +72,7 @@ export default function HabitDetail() {
   }).reverse();
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#1A0A10' : '#FCF9FA' }]} edges={['bottom']}>
        <PinkHeader title="Habit Details" showBack />
   
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
